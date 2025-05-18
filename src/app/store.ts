@@ -1,10 +1,9 @@
 import { configureStore } from "@reduxjs/toolkit";
-import { jsonPlaceholderApi } from "pages/new/api";
+import { baseApi } from "shared/api";
 
 export const store = configureStore({
   reducer: {
-    [jsonPlaceholderApi.reducerPath]: jsonPlaceholderApi.reducer,
+    [baseApi.reducerPath]: baseApi.reducer,
   },
-  middleware: (getDefaultMiddleware) =>
-    getDefaultMiddleware().concat(jsonPlaceholderApi.middleware),
+  middleware: (getDefaultMiddleware) => getDefaultMiddleware().concat(baseApi.middleware),
 });

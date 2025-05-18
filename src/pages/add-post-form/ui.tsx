@@ -1,17 +1,17 @@
 import { Form, Input, Button, Select, message, Typography } from "antd";
-import { useAddPostMutation, useGetUsersQuery } from "./api";
+import { useAddPostMutation, useGetUsersQuery } from "../../shared/api";
 
 const { TextArea } = Input;
 const { Option } = Select;
 const { Title } = Typography;
 
-type FieldType = {
+interface FieldType {
   title: string;
   body: string;
   userId: number;
-};
+}
 
-export function New() {
+export function AddPostForm() {
   const [form] = Form.useForm<FieldType>();
   const { data: users = [], isLoading: isUsersLoading } = useGetUsersQuery();
   const [addPost, { isLoading }] = useAddPostMutation();
@@ -29,7 +29,6 @@ export function New() {
 
   return (
     <div className="max-w-2xl mx-auto p-6 bg-white rounded-lg shadow-md">
-      {/* // <div className="container"> */}
       {contextHolder}
       <Title level={2}>Новая запись</Title>
 

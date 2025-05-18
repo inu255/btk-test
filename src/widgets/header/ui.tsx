@@ -12,10 +12,13 @@ export function Header() {
 
           <nav>
             <Space size="middle">
-              <Link to="/posts" className="text-gray-600 hover:text-gray-900 transition-colors">
+              <Link to="/post-list" className="text-gray-600 hover:text-gray-900 transition-colors">
                 Записи
               </Link>
-              <Link to="/new" className="text-gray-600 hover:text-gray-900 transition-colors">
+              <Link
+                to="/add-post-form"
+                className="text-gray-600 hover:text-gray-900 transition-colors"
+              >
                 Новая запись
               </Link>
             </Space>

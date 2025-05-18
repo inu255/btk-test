@@ -1,5 +1,5 @@
-type Props = {};
+import { Navigate } from "react-router";
 
-export function Home({}: Props) {
-  return <div>home</div>;
+export function Home() {
+  return <Navigate to="/post-list" replace />;
 }

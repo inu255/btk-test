@@ -6,13 +6,14 @@ export interface User {
 }
 
 export interface Post {
+  id: number;
   userId: number;
   title: string;
   body: string;
 }
 
-export const jsonPlaceholderApi = createApi({
-  reducerPath: "jsonPlaceholderApi",
+export const baseApi = createApi({
+  reducerPath: "baseApi",
   baseQuery: fetchBaseQuery({ baseUrl: "https://jsonplaceholder.typicode.com" }),
   endpoints: (builder) => ({
     getUsers: builder.query<User[], void>({
@@ -25,7 +26,11 @@ export const jsonPlaceholderApi = createApi({
         body: post,
       }),
     }),
+    getPosts: builder.query<Post[], { start: number; limit: number }>({
+      query: ({ start = 0, limit = 10 }) => `/posts?_start=${start}&_limit=${limit}`,
+      keepUnusedDataFor: 60,
+    }),
   }),
 });
 
-export const { useGetUsersQuery, useAddPostMutation } = jsonPlaceholderApi;
+export const { useGetUsersQuery, useAddPostMutation, useGetPostsQuery } = baseApi;

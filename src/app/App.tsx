@@ -1,7 +1,8 @@
 import { Route, Routes } from "react-router";
 import { Provider } from "react-redux";
-import { New } from "pages/new";
+import { AddPostForm } from "pages/add-post-form";
 import { Home } from "pages/home";
+import { PostList } from "pages/post-list/ui";
 import { Header } from "widgets/header";
 import { store } from "./store";
 
@@ -16,8 +17,8 @@ function App() {
         <main className="container p-6">
           <Routes>
             <Route path="/" element={<Home />} />
-            <Route path="/new" element={<New />} />
-            {/* <Route path="*" element={<NotFound />} /> */}
+            <Route path="/add-post-form" element={<AddPostForm />} />
+            <Route path="/post-list" element={<PostList />} />
           </Routes>
         </main>
       </Provider>
