@@ -1,11 +1,12 @@
-import { Card, Input, List, Select, Skeleton, Space, Typography } from "antd";
+import { useMemo, useEffect, memo } from "react";
+import { useSearchParams, useNavigate } from "react-router";
+import { List, Card, Typography, Input, Select, Space, Pagination, Skeleton } from "antd";
 import { debounce } from "lodash-es";
-import { memo, useCallback, useEffect, useMemo, useState } from "react";
 import { Post, useGetPostsQuery } from "shared/api";
 
+const { Text } = Typography;
 const { Search } = Input;
 const { Option } = Select;
-const { Text } = Typography;
 
 interface PostItemProps {
   post: Post;
@@ -20,40 +21,54 @@ const PostItem = memo(({ post }: PostItemProps) => (
 ));
 
 export const PostList = () => {
-  const [page, setPage] = useState(1);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
+  const [searchParams, setSearchParams] = useSearchParams();
+  const navigate = useNavigate();
 
-  const {
-    data: posts = [],
-    isLoading,
-    isFetching,
-  } = useGetPostsQuery({
-    start: (page - 1) * 10,
-    limit: 10,
+  const page = parseInt(searchParams.get("page") || "1", 10);
+  const searchTerm = searchParams.get("search") || "";
+  const sortOrder: "asc" | "desc" = (searchParams.get("sort") as "asc" | "desc") || "asc";
+
+  const { data: allPosts = [], isLoading } = useGetPostsQuery({
+    start: 0,
+    limit: 100,
   });
 
-  const handleSearch = useCallback(
-    debounce((value: string) => {
-      setSearchTerm(value);
-      setPage(1);
-    }, 500),
-    []
-  );
+  useEffect(() => {
+    if (!searchParams.get("page")) {
+      navigate(`?page=1&sort=asc`, { replace: true });
+    }
+  }, []);
 
-  const filteredPosts = useMemo(() => {
-    const filtered = posts.filter((post) =>
+  const handlePageChange = (newPage: number) => {
+    searchParams.set("page", newPage.toString());
+    setSearchParams(searchParams);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const handleSearch = debounce((value: string) => {
+    searchParams.set("search", value);
+    searchParams.set("page", "1");
+    setSearchParams(searchParams);
+  }, 500);
+
+  const handleSortChange = (value: "asc" | "desc") => {
+    searchParams.set("sort", value);
+    setSearchParams(searchParams);
+  };
+
+  const processedPosts = useMemo(() => {
+    const filtered = allPosts.filter((post) =>
       post.title.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
     return [...filtered].sort((a, b) => (sortOrder === "asc" ? a.id - b.id : b.id - a.id));
-  }, [posts, searchTerm, sortOrder]);
+  }, [allPosts, searchTerm, sortOrder]);
 
-  useEffect(() => {
-    return () => {
-      handleSearch.cancel();
-    };
-  }, [handleSearch]);
+  const paginatedPosts = useMemo(() => {
+    const pageSize = 10;
+    const startIndex = (page - 1) * pageSize;
+    return processedPosts.slice(startIndex, startIndex + pageSize);
+  }, [processedPosts, page]);
 
   return (
     <div className="post-list-container">
@@ -66,7 +81,7 @@ export const PostList = () => {
             onChange={(e) => handleSearch(e.target.value)}
           />
 
-          <Select className="md:min-w-[150px]" value={sortOrder} onChange={setSortOrder}>
+          <Select className="md:min-w-[150px]" value={sortOrder} onChange={handleSortChange}>
             <Option value="asc">По возрастанию</Option>
             <Option value="desc">По убыванию</Option>
           </Select>
@@ -77,22 +92,18 @@ export const PostList = () => {
         ) : (
           <>
             <List
-              dataSource={filteredPosts}
+              dataSource={paginatedPosts}
               renderItem={(post) => <PostItem post={post} />}
-              pagination={{
-                current: page,
-                pageSize: 10,
-                total: 100,
-                onChange: (newPage) => {
-                  window.scrollTo({ top: 0, behavior: "smooth" });
-                  setPage(newPage);
-                },
-                showSizeChanger: false,
-                disabled: isFetching,
-              }}
-              loading={isFetching}
               locale={{ emptyText: "Нет данных" }}
-              split={false}
+            />
+
+            <Pagination
+              current={page}
+              total={processedPosts.length}
+              pageSize={10}
+              onChange={handlePageChange}
+              showSizeChanger={false}
+              style={{ textAlign: "center" }}
             />
           </>
         )}
