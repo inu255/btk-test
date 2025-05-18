@@ -24,8 +24,8 @@ export const PostList = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
 
-  const page = parseInt(searchParams.get("page") || "1", 10);
-  const searchTerm = searchParams.get("search") || "";
+  const page: number = parseInt(searchParams.get("page") || "1", 10);
+  const searchTerm: string = searchParams.get("search") || "";
   const sortOrder: "asc" | "desc" = (searchParams.get("sort") as "asc" | "desc") || "asc";
 
   const { data: allPosts = [], isLoading } = useGetPostsQuery({
